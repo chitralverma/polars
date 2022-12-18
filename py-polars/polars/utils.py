@@ -297,6 +297,20 @@ def _in_notebook() -> bool:
     return True
 
 
+def resolve_delta_lake_uri(table_uri: str, strict: bool = True) -> tuple[str, str, str]:
+    from urllib.parse import ParseResult, urlparse
+
+    parsed_result = urlparse(table_uri)
+    scheme = parsed_result.scheme
+
+    resolved_uri = str(
+        Path(table_uri).expanduser().resolve(strict) if scheme == "" else table_uri
+    )
+
+    normalized_path = str(ParseResult("", *parsed_result[1:]).geturl())
+    return scheme, resolved_uri, normalized_path
+
+
 def format_path(path: str | Path) -> str:
     """Create a string path, expanding the home directory if present."""
     return os.path.expanduser(path)

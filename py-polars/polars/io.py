@@ -30,7 +30,12 @@ from polars.dependencies import _DELTALAKE_AVAILABLE, _PYARROW_AVAILABLE, deltal
 from polars.dependencies import pyarrow as pa
 from polars.internals import DataFrame, LazyFrame, _scan_ds
 from polars.internals.io import _prepare_file_arg
-from polars.utils import deprecated_alias, format_path, handle_projection_columns
+from polars.utils import (
+    deprecated_alias,
+    format_path,
+    handle_projection_columns,
+    resolve_delta_lake_uri,
+)
 
 if TYPE_CHECKING:
     from polars.internals.type_aliases import CsvEncoding, ParallelStrategy
@@ -1314,20 +1319,6 @@ def _get_delta_lake_table(
     return dl_tbl
 
 
-def _resolve_delta_lake_uri(table_uri: str) -> tuple[str, str, str]:
-    from urllib.parse import ParseResult, urlparse
-
-    parsed_result = urlparse(table_uri)
-    scheme = parsed_result.scheme
-
-    resolved_uri = str(
-        Path(table_uri).expanduser().resolve(True) if scheme == "" else table_uri
-    )
-
-    normalized_path = str(ParseResult("", *parsed_result[1:]).geturl())
-    return (scheme, resolved_uri, normalized_path)
-
-
 def scan_delta(
     table_uri: str,
     version: int | None = None,
@@ -1371,6 +1362,11 @@ def scan_delta(
         Additional keyword arguments while reading a Delta lake Table.
     pyarrow_options
         Keyword arguments while converting a Delta lake Table to pyarrow table.
+
+    Notes
+    -----
+    Make sure to install deltalake>=0.6.0. Read the documentation
+    `here <https://delta-io.github.io/delta-rs/python/installation.html>`_.
 
     Returns
     -------
@@ -1480,7 +1476,7 @@ def scan_delta(
     import pyarrow.fs as pa_fs
 
     # Resolve relative paths if not an object storage
-    scheme, resolved_uri, normalized_path = _resolve_delta_lake_uri(table_uri)
+    scheme, resolved_uri, normalized_path = resolve_delta_lake_uri(table_uri)
 
     # Storage Backend
     if raw_filesystem is None:
@@ -1540,6 +1536,11 @@ def read_delta(
     pyarrow_options
         Keyword arguments while converting a Delta lake Table to pyarrow table.
 
+    Notes
+    -----
+    Make sure to install deltalake>=0.6.0. Read the documentation
+    `here <https://delta-io.github.io/delta-rs/python/installation.html>`_.
+
     Returns
     -------
     DataFrame
@@ -1547,7 +1548,7 @@ def read_delta(
     Examples
     --------
     Reads a Delta table from local filesystem.
-    Note: Since version is not provided, latest version of the delta table is read.
+    Note: Since version is not provided, the latest version of the delta table is read.
 
     >>> table_path = "/path/to/delta-table/"
     >>> pl.read_delta(table_path)  # doctest: +SKIP
@@ -1612,7 +1613,7 @@ def read_delta(
     if pyarrow_options is None:
         pyarrow_options = {}
 
-    _, resolved_uri, _ = _resolve_delta_lake_uri(table_uri)
+    _, resolved_uri, _ = resolve_delta_lake_uri(table_uri)
 
     dl_tbl = _get_delta_lake_table(
         table_path=resolved_uri,

@@ -45,7 +45,12 @@ from polars.datatypes import (
     get_idx_type,
     py_type_to_dtype,
 )
-from polars.dependencies import _NUMPY_TYPE, _PANDAS_TYPE, _PYARROW_TYPE
+from polars.dependencies import (
+    _DELTALAKE_AVAILABLE,
+    _NUMPY_TYPE,
+    _PANDAS_TYPE,
+    _PYARROW_TYPE,
+)
 from polars.dependencies import numpy as np
 from polars.dependencies import pandas as pd
 from polars.dependencies import pyarrow as pa
@@ -71,6 +76,7 @@ from polars.utils import (
     is_int_sequence,
     is_str_sequence,
     range_to_slice,
+    resolve_delta_lake_uri,
     scale_bytes,
 )
 
@@ -2215,6 +2221,102 @@ class DataFrame:
             self._df.write_parquet(
                 file, compression, compression_level, statistics, row_group_size
             )
+
+    def write_delta(
+        self,
+        table_uri: str,
+        name: str | None = None,
+        description: str | None = None,
+        partition_by: list[str] | None = None,
+        mode: Literal["error", "append", "overwrite", "ignore"] = "error",
+        storage_options: dict[str, object] | None = None,
+        delta_write_options: dict[str, object] | None = None,
+    ) -> None:
+        """
+        Write or update a Delta lake table.
+
+        Warnings
+        --------
+        This functionality is experimental and may be subject to changes
+        without it being considered a breaking change.
+        Please use on test data first, not on production data.
+
+        Parameters
+        ----------
+        table_uri
+            Path or URI to the root of the Delta lake table.
+
+            Note: For Local filesystem, absolute and relative paths are supported. But
+            for the supported object storages - GCS, Azure and S3, there is no relative
+            path support, and thus full URI must be provided.
+        name
+            User-provided identifier for this table.
+        description
+            User-provided description for this table.
+        partition_by
+            List of columns to partition the table by.
+            Only required when creating a new table.
+        mode
+            How to handle existing data.
+            Default behaviour is to error if table already exists at the location.
+            If ‘append’, will add new data.
+            If ‘overwrite’, will replace table with new data.
+            If ‘ignore’, will not write anything if table already exists.
+        storage_options
+            Extra options for the storage backends supported by `deltalake`.
+            For cloud storages, this may include configurations for authentication etc.
+
+            More info is available `here
+            <>`__.
+        delta_write_options
+            Additional keyword arguments while writing a Delta lake Table.
+
+            See a full list of options `here
+            <https://delta-io.github.io/delta-rs/python/api_reference.html#deltalake.write_deltalake>`__.
+
+        Notes
+        -----
+        Make sure to install deltalake>=0.6.0. Read the documentation
+        `here <https://delta-io.github.io/delta-rs/python/installation.html>`_.
+
+        Examples
+        --------
+        Write a new Delta table to local filesystem.
+
+        >>> import pathlib
+        >>> table_path = str(dirpath / "delta-table")
+        >>> df = pl.DataFrame(
+        ...     {
+        ...         "name": ["a", "b", "c"],
+        ...         "age": [1, 2, 3],
+        ...     }
+        ... )
+        >>> pl.write_delta(table_path)  # doctest: +SKIP
+
+        """
+        _, resolved_uri, _ = resolve_delta_lake_uri(table_uri, strict=False)
+
+        if not _DELTALAKE_AVAILABLE:
+            raise ImportError(
+                "deltalake is not installed. Please run `pip install deltalake>=0.6.0`."
+            )
+
+        if delta_write_options is None:
+            delta_write_options = {}
+
+        from deltalake.writer import write_deltalake  # type: ignore[import]
+
+        tbl = self.to_arrow()
+        write_deltalake(
+            table_or_uri=resolved_uri,
+            data=tbl,
+            name=name,
+            description=description,
+            partition_by=partition_by,
+            mode=mode,
+            storage_options=storage_options,
+            **delta_write_options,
+        )
 
     def estimated_size(self, unit: SizeUnit = "b") -> int | float:
         """
