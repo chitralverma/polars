@@ -11,6 +11,7 @@ use polars_plan::prelude::{AAggExpr, AExpr};
 use polars_utils::arena::{Arena, Node};
 use polars_utils::IdxSize;
 
+use crate::executors::sinks::groupby::aggregates::approx_count::ApproxCountAgg;
 use crate::executors::sinks::groupby::aggregates::count::CountAgg;
 use crate::executors::sinks::groupby::aggregates::first::FirstAgg;
 use crate::executors::sinks::groupby::aggregates::last::LastAgg;
@@ -49,6 +50,7 @@ pub fn can_convert_to_hash_agg(
             match ae {
                 AExpr::Agg(_)
                 | AExpr::Count
+                | AExpr::ApproxCount
                 | AExpr::Cast { .. }
                 | AExpr::Literal(_)
                 | AExpr::Column(_)
@@ -72,6 +74,7 @@ pub fn can_convert_to_hash_agg(
         }
         match expr_arena.get(node) {
             AExpr::Count => true,
+            AExpr::ApproxCount => true,
             ae @ AExpr::Agg(agg_fn) => {
                 matches!(
                     agg_fn,
@@ -80,6 +83,7 @@ pub fn can_convert_to_hash_agg(
                         | AAggExpr::Last(_)
                         | AAggExpr::Mean(_)
                         | AAggExpr::Count(_)
+                        | AAggExpr::ApproxCount(..)
                 ) || (matches!(
                     agg_fn,
                     AAggExpr::Max {
@@ -233,6 +237,13 @@ where
             AAggExpr::Count(input) => {
                 let phys_expr = to_physical(*input, expr_arena, Some(schema)).unwrap();
                 (phys_expr, AggregateFunction::Count(CountAgg::new()))
+            }
+            AAggExpr::ApproxCount(input, precision) => {
+                let phys_expr = to_physical(*input, expr_arena, Some(schema)).unwrap();
+                (
+                    phys_expr,
+                    AggregateFunction::ApproxCount(ApproxCountAgg::new(*precision)),
+                )
             }
             agg => panic!("{agg:?} not yet implemented."),
         },

@@ -95,6 +95,11 @@ impl PhysicalExpr for AggregationExpr {
                     let agg_s = ac.flat_naive().into_owned().agg_sum(ac.groups());
                     rename_series(agg_s, &keep_name)
                 }
+                GroupByMethod::ApproxCount => {
+                    check_null_prop!();
+                    let agg_s = ac.flat_naive().into_owned().agg_approx_count(ac.groups());
+                    rename_series(agg_s, &keep_name)
+                }
                 GroupByMethod::Count => {
                     // a few fast paths that prevent materializing new groups
                     match ac.update_groups {
@@ -346,6 +351,11 @@ impl PartitionedAggregation for AggregationExpr {
                     agg.rename(series.name());
                     Ok(agg)
                 }
+                GroupByMethod::ApproxCount => {
+                    let mut agg = series.agg_approx_count(groups);
+                    agg.rename(series.name());
+                    Ok(agg)
+                }
                 GroupByMethod::Count => {
                     let mut ca = groups.group_count();
                     ca.rename(series.name());
@@ -367,6 +377,11 @@ impl PartitionedAggregation for AggregationExpr {
         match self.agg_type {
             GroupByMethod::Count | GroupByMethod::Sum => {
                 let mut agg = unsafe { partitioned.agg_sum(groups) };
+                agg.rename(partitioned.name());
+                Ok(agg)
+            }
+            GroupByMethod::ApproxCount => {
+                let mut agg = unsafe { partitioned.agg_approx_count(groups) };
                 agg.rename(partitioned.name());
                 Ok(agg)
             }

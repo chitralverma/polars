@@ -28,6 +28,7 @@ pub(crate) fn create_physical_expr(
 
     match expr_arena.get(expression).clone() {
         Count => Ok(Arc::new(phys_expr::CountExpr::new())),
+        ApproxCount => Ok(Arc::new(phys_expr::ApproxCountExpr::new())),
         Window {
             mut function,
             partition_by,
@@ -512,6 +513,35 @@ pub(crate) fn create_physical_expr(
                             )))
                         }
                     }
+                }
+                AAggExpr::ApproxCount(expr, _) => {
+                    let input = create_physical_expr(expr, ctxt, expr_arena, schema)?;
+                    Ok(Arc::new(AggregationExpr::new(
+                        input,
+                        GroupByMethod::ApproxCount,
+                    )))
+                    // match ctxt {
+                    //     Context::Aggregation => {
+                    //         Ok(Arc::new(AggregationExpr::new(input, GroupByMethod::ApproxCount)))
+                    //     }
+                    //     Context::Default => {
+                    //         let function = SpecialEq::new(Arc::new(move |s: &mut [Series]| {
+                    //             let s = std::mem::take(&mut s[0]);
+                    //             let count = s.len();
+                    //             Ok(Some(
+                    //                 UInt32Chunked::from_slice(s.name(), &[count as u32])
+                    //                     .into_series(),
+                    //             ))
+                    //         })
+                    //             as Arc<dyn SeriesUdf>);
+                    //         Ok(Arc::new(ApplyExpr::new_minimal(
+                    //             vec![input],
+                    //             function,
+                    //             node_to_expr(expression, expr_arena),
+                    //             ApplyOptions::ApplyFlat,
+                    //         )))
+                    //     }
+                    // }
                 }
             }
         }

@@ -91,6 +91,7 @@ fn partitionable_gb(
                                                 | AAggExpr::Last(_)
                                                 | AAggExpr::First(_)
                                                 | AAggExpr::Count(_)
+                                                | AAggExpr::ApproxCount(..)
                                         )
                         },
                         Function {input, options, ..} => {

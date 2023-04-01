@@ -1149,7 +1149,10 @@ impl Expr {
     pub fn count(self) -> Self {
         AggExpr::Count(Box::new(self)).into()
     }
-
+    /// TODO DOCS
+    pub fn approx_count(self, precision: Option<u8>) -> Self {
+        AggExpr::ApproxCount(Box::new(self), precision.unwrap_or(16)).into()
+    }
     /// Standard deviation of the values of the Series
     pub fn std(self, ddof: u8) -> Self {
         AggExpr::Std(Box::new(self), ddof).into()

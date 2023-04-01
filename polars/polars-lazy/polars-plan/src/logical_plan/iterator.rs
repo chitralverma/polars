@@ -3,7 +3,8 @@ macro_rules! push_expr {
     ($current_expr:expr, $push:ident, $iter:ident) => {{
         use Expr::*;
         match $current_expr {
-            Nth(_) | Column(_) | Literal(_) | Wildcard | Columns(_) | DtypeColumn(_) | Count => {}
+            Nth(_) | Column(_) | Literal(_) | Wildcard | Columns(_) | DtypeColumn(_) | Count
+            | ApproxCount => {}
             Alias(e, _) => $push(e),
             BinaryExpr { left, op: _, right } => {
                 // reverse order so that left is popped first
@@ -40,6 +41,7 @@ macro_rules! push_expr {
                     Last(e) => $push(e),
                     List(e) => $push(e),
                     Count(e) => $push(e),
+                    ApproxCount(e, _) => $push(e),
                     Quantile { expr, .. } => $push(expr),
                     Sum(e) => $push(e),
                     AggGroups(e) => $push(e),
@@ -164,7 +166,7 @@ impl AExpr {
         use AExpr::*;
 
         match self {
-            Nth(_) | Column(_) | Literal(_) | Wildcard | Count => {}
+            Nth(_) | Column(_) | Literal(_) | Wildcard | Count | ApproxCount => {}
             Alias(e, _) => push(e),
             BinaryExpr { left, op: _, right } => {
                 // reverse order so that left is popped first
@@ -202,6 +204,7 @@ impl AExpr {
                     Last(e) => push(e),
                     List(e) => push(e),
                     Count(e) => push(e),
+                    ApproxCount(e, _) => push(e),
                     Quantile { expr, .. } => push(expr),
                     Sum(e) => push(e),
                     AggGroups(e) => push(e),

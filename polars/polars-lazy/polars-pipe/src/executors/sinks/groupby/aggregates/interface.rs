@@ -5,6 +5,7 @@ use enum_dispatch::enum_dispatch;
 use polars_core::datatypes::DataType;
 use polars_core::prelude::{AnyValue, Series};
 
+use crate::executors::sinks::groupby::aggregates::approx_count::ApproxCountAgg;
 use crate::executors::sinks::groupby::aggregates::count::CountAgg;
 use crate::executors::sinks::groupby::aggregates::first::FirstAgg;
 use crate::executors::sinks::groupby::aggregates::last::LastAgg;
@@ -74,6 +75,7 @@ pub(crate) enum AggregateFunction {
     First(FirstAgg),
     Last(LastAgg),
     Count(CountAgg),
+    ApproxCount(ApproxCountAgg),
     SumF32(SumAgg<f32>),
     SumF64(SumAgg<f64>),
     SumU32(SumAgg<u32>),
@@ -110,6 +112,7 @@ impl AggregateFunction {
             MeanF32(_) => MeanF32(MeanAgg::new()),
             MeanF64(_) => MeanF64(MeanAgg::new()),
             Count(_) => Count(CountAgg::new()),
+            ApproxCount(inner) => ApproxCount(inner.clone()),
             Null(a) => Null(a.clone()),
             MinMaxF32(inner) => MinMaxF32(inner.split()),
             MinMaxF64(inner) => MinMaxF64(inner.split()),

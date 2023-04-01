@@ -75,6 +75,9 @@ pub fn to_aexpr(expr: Expr, arena: &mut Arena<AExpr>) -> Node {
                 AggExpr::Mean(expr) => AAggExpr::Mean(to_aexpr(*expr, arena)),
                 AggExpr::List(expr) => AAggExpr::List(to_aexpr(*expr, arena)),
                 AggExpr::Count(expr) => AAggExpr::Count(to_aexpr(*expr, arena)),
+                AggExpr::ApproxCount(expr, precision) => {
+                    AAggExpr::ApproxCount(to_aexpr(*expr, arena), precision)
+                }
                 AggExpr::Quantile {
                     expr,
                     quantile,
@@ -147,6 +150,7 @@ pub fn to_aexpr(expr: Expr, arena: &mut Arena<AExpr>) -> Node {
         },
         Expr::Wildcard => AExpr::Wildcard,
         Expr::Count => AExpr::Count,
+        Expr::ApproxCount => AExpr::ApproxCount,
         Expr::Nth(i) => AExpr::Nth(i),
         Expr::KeepName(_) => panic!("no keep_name expected at this point"),
         Expr::Exclude(_, _) => panic!("no exclude expected at this point"),
@@ -561,6 +565,10 @@ pub fn node_to_expr(node: Node, expr_arena: &Arena<AExpr>) -> Expr {
                 let exp = node_to_expr(expr, expr_arena);
                 AggExpr::Count(Box::new(exp)).into()
             }
+            AAggExpr::ApproxCount(expr, precision) => {
+                let exp = node_to_expr(expr, expr_arena);
+                AggExpr::ApproxCount(Box::new(exp), precision).into()
+            }
         },
         AExpr::Ternary {
             predicate,
@@ -623,6 +631,7 @@ pub fn node_to_expr(node: Node, expr_arena: &Arena<AExpr>) -> Expr {
             length: Box::new(node_to_expr(length, expr_arena)),
         },
         AExpr::Count => Expr::Count,
+        AExpr::ApproxCount => Expr::ApproxCount,
         AExpr::Nth(i) => Expr::Nth(i),
         AExpr::Wildcard => Expr::Wildcard,
     }

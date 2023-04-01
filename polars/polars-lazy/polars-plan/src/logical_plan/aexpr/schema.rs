@@ -18,6 +18,7 @@ impl AExpr {
         use DataType::*;
         match self {
             Count => Ok(Field::new(COUNT, IDX_DTYPE)),
+            ApproxCount => Ok(Field::new(APPROXCOUNT, IDX_DTYPE)),
             Window { function, .. } => {
                 let e = arena.get(*function);
                 e.to_field(schema, ctxt, arena)
@@ -135,6 +136,12 @@ impl AExpr {
                         let mut field =
                             arena.get(*expr).to_field(schema, Context::Default, arena)?;
                         field.coerce(DataType::UInt32);
+                        Ok(field)
+                    }
+                    ApproxCount(expr, _) => {
+                        let mut field =
+                            arena.get(*expr).to_field(schema, Context::Default, arena)?;
+                        field.coerce(IDX_DTYPE);
                         Ok(field)
                     }
                     Count(expr) => {

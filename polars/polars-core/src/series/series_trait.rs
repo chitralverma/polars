@@ -127,6 +127,9 @@ pub(crate) mod private {
         unsafe fn agg_std(&self, groups: &GroupsProxy, _ddof: u8) -> Series {
             Series::full_null(self._field().name(), groups.len(), self._dtype())
         }
+        unsafe fn agg_approx_count(&self, groups: &GroupsProxy) -> Series {
+            Series::full_null(self._field().name(), groups.len(), self._dtype())
+        }
         unsafe fn agg_var(&self, groups: &GroupsProxy, _ddof: u8) -> Series {
             Series::full_null(self._field().name(), groups.len(), self._dtype())
         }

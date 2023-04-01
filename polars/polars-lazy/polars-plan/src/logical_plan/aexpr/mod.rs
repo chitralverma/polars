@@ -10,7 +10,7 @@ use polars_utils::arena::{Arena, Node};
 use crate::dsl::function_expr::FunctionExpr;
 use crate::logical_plan::Context;
 use crate::prelude::aexpr::NodeInputs::Single;
-use crate::prelude::names::COUNT;
+use crate::prelude::names::*;
 use crate::prelude::*;
 
 #[derive(Clone, Debug)]
@@ -36,6 +36,7 @@ pub enum AAggExpr {
     },
     Sum(Node),
     Count(Node),
+    ApproxCount(Node, u8),
     Std(Node, u8),
     Var(Node, u8),
     AggGroups(Node),
@@ -108,6 +109,7 @@ pub enum AExpr {
         length: Node,
     },
     Count,
+    ApproxCount,
     Nth(i64),
 }
 
@@ -128,6 +130,7 @@ impl AExpr {
             | Agg { .. }
             | Window { .. }
             | Count
+            | ApproxCount
             | Slice { .. }
             | Take { .. }
             | Nth(_)
@@ -219,6 +222,7 @@ impl AExpr {
             Wildcard => panic!("no wildcard expected"),
             Slice { input, .. } => Single(*input),
             Count => Leaf,
+            ApproxCount => Leaf,
             Nth(_) => Leaf,
         }
     }
@@ -239,6 +243,7 @@ impl AAggExpr {
             Quantile { expr, .. } => Single(*expr),
             Sum(input) => Single(*input),
             Count(input) => Single(*input),
+            ApproxCount(input, _) => Single(*input),
             Std(input, _) => Single(*input),
             Var(input, _) => Single(*input),
             AggGroups(input) => Single(*input),

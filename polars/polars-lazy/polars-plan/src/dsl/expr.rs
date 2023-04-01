@@ -267,6 +267,7 @@ pub enum AggExpr {
     Last(Box<Expr>),
     Mean(Box<Expr>),
     List(Box<Expr>),
+    ApproxCount(Box<Expr>, u8),
     Count(Box<Expr>),
     Quantile {
         expr: Box<Expr>,
@@ -292,6 +293,7 @@ impl AsRef<Expr> for AggExpr {
             Mean(e) => e,
             List(e) => e,
             Count(e) => e,
+            ApproxCount(e, _) => e,
             Quantile { expr, .. } => expr,
             Sum(e) => e,
             AggGroups(e) => e,
@@ -377,6 +379,7 @@ pub enum Expr {
     KeepName(Box<Expr>),
     /// Special case that does not need columns
     Count,
+    ApproxCount,
     /// Take the nth column in the `DataFrame`
     Nth(i64),
     // skipped fields must be last otherwise serde fails in pickle

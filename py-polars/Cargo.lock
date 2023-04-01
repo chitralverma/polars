@@ -77,8 +77,9 @@ dependencies = [
 
 [[package]]
 name = "arrow2"
-version = "0.16.0"
-source = "git+https://github.com/ritchie46/arrow2?branch=polars_2023-03-22#dd53a883e9091edeed670789207edda14f5a0f5f"
+version = "0.17.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3c63cf31f1416ed2fab8f91e8488e10129f47bd89c553ec354a06751d5697f3"
 dependencies = [
  "ahash",
  "arrow-format",
@@ -795,6 +796,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
+name = "hyperloglogplus"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "621debdf94dcac33e50475fdd76d34d5ea9c0362a834b9db08c3024696c1fbe3"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "iana-time-zone"
 version = "0.1.53"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1454,7 +1464,7 @@ dependencies = [
 
 [[package]]
 name = "polars"
-version = "0.27.2"
+version = "0.28.0"
 dependencies = [
  "getrandom",
  "polars-core",
@@ -1468,7 +1478,7 @@ dependencies = [
 
 [[package]]
 name = "polars-algo"
-version = "0.27.2"
+version = "0.28.0"
 dependencies = [
  "polars-core",
  "polars-lazy",
@@ -1477,7 +1487,7 @@ dependencies = [
 
 [[package]]
 name = "polars-arrow"
-version = "0.27.2"
+version = "0.28.0"
 dependencies = [
  "arrow2",
  "chrono",
@@ -1492,7 +1502,7 @@ dependencies = [
 
 [[package]]
 name = "polars-core"
-version = "0.27.2"
+version = "0.28.0"
 dependencies = [
  "ahash",
  "arrow2",
@@ -1525,7 +1535,7 @@ dependencies = [
 
 [[package]]
 name = "polars-error"
-version = "0.27.2"
+version = "0.28.0"
 dependencies = [
  "arrow2",
  "regex",
@@ -1534,7 +1544,7 @@ dependencies = [
 
 [[package]]
 name = "polars-io"
-version = "0.27.2"
+version = "0.28.0"
 dependencies = [
  "ahash",
  "arrow2",
@@ -1568,7 +1578,7 @@ dependencies = [
 
 [[package]]
 name = "polars-lazy"
-version = "0.27.2"
+version = "0.28.0"
 dependencies = [
  "ahash",
  "bitflags",
@@ -1588,7 +1598,7 @@ dependencies = [
 
 [[package]]
 name = "polars-ops"
-version = "0.27.2"
+version = "0.28.0"
 dependencies = [
  "arrow2",
  "base64",
@@ -1606,11 +1616,12 @@ dependencies = [
 
 [[package]]
 name = "polars-pipe"
-version = "0.27.2"
+version = "0.28.0"
 dependencies = [
  "crossbeam-channel",
  "enum_dispatch",
  "hashbrown 0.13.2",
+ "hyperloglogplus",
  "num-traits",
  "polars-arrow",
  "polars-core",
@@ -1625,7 +1636,7 @@ dependencies = [
 
 [[package]]
 name = "polars-plan"
-version = "0.27.2"
+version = "0.28.0"
 dependencies = [
  "ahash",
  "arrow2",
@@ -1647,7 +1658,7 @@ dependencies = [
 
 [[package]]
 name = "polars-row"
-version = "0.27.2"
+version = "0.28.0"
 dependencies = [
  "arrow2",
  "polars-error",
@@ -1656,7 +1667,7 @@ dependencies = [
 
 [[package]]
 name = "polars-sql"
-version = "0.2.3"
+version = "0.28.0"
 dependencies = [
  "polars-arrow",
  "polars-core",
@@ -1669,7 +1680,7 @@ dependencies = [
 
 [[package]]
 name = "polars-time"
-version = "0.27.2"
+version = "0.28.0"
 dependencies = [
  "arrow2",
  "atoi",
@@ -1688,7 +1699,7 @@ dependencies = [
 
 [[package]]
 name = "polars-utils"
-version = "0.27.2"
+version = "0.28.0"
 dependencies = [
  "once_cell",
  "rayon",

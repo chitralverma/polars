@@ -1,6 +1,7 @@
 mod aggregation;
 mod alias;
 mod apply;
+mod approx_count;
 mod binary;
 mod cast;
 mod column;
@@ -21,6 +22,7 @@ use std::fmt::{Display, Formatter};
 pub(crate) use aggregation::*;
 pub(crate) use alias::*;
 pub(crate) use apply::*;
+pub(crate) use approx_count::*;
 pub(crate) use binary::*;
 pub(crate) use cast::*;
 pub(crate) use column::*;
