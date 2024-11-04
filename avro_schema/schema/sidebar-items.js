@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["BytesLogical","FixedLogical","IntLogical","LongLogical","Order","Schema","StringLogical"],"struct":["Enum","Field","Fixed","Record"]};
