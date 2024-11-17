@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["NULL"],"enum":["LiteralValue","LogicalPlan"],"struct":["AnonymousScanOptions","IpcWriterOptions","Null","ParquetWriteOptions"],"trait":["AnonymousScan","Literal"]};
