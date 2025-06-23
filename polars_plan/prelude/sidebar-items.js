@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ApplyOptions","FileType"],"struct":["AnonymousScanOptions","Arena","CsvParserOptions","DistinctOptions","FileScanOptions","FileSinkOptions","FunctionOptions","GroupbyOptions","IpcScanOptions","IpcWriterOptions","LogicalPlanUdfOptions","Node","ParquetOptions","ParquetWriteOptions","SortArguments","UnionOptions","UnsafeBool"],"type":["FileCount"]};
